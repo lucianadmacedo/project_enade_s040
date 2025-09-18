@@ -22,13 +22,14 @@ tab
 
 # Joining 1 and 2 CPC range since there is no online course with CPC 1
 cpc_join <- cpc %>%
-  filter(cpc_range %in% c("1", "2", "3", "4", "5")) %>% 
-  
-  # Recode the character strings directly
+  # Recode the ranges according to MEC's definitions
   mutate(cpc_range = case_when(
-    cpc_range %in% c("1", "2") ~ "1 and 2",
+    cpc_range %in% c("1", "2") ~ "Unsatisfactory",
+    cpc_range == "3" ~ "Regular",
+    cpc_range %in% c("4", "5") ~ "Excellent",
     TRUE ~ cpc_range 
-  ))
+  )) %>%
+  mutate(cpc_range = factor(cpc_range, levels = c("Unsatisfactory", "Regular", "Excellent"))) # set desired order
 
 # Shows values from joint dataset in one table
 tab_join <- cpc_join %>% select(cpc_range, modality) %>% table()
@@ -46,7 +47,5 @@ cpc_frame %>% ggplot(mapping = aes(x = cpc_range, fill = modality, y = Freq)) +
 
 # Chi-squared test and t-test
 chisq_test <- tab_join %>% chisq.test(correct = FALSE)
-# t.test(tab_join, var.equal = TRUE) # This does not work because t.test is aggregating the results
-
-t.test(cpc_range ~ modality, data = cpc_join, var.equal = TRUE)
+chisq_test
 
