@@ -49,3 +49,16 @@ cpc_frame %>% ggplot(mapping = aes(x = cpc_range, fill = modality, y = Freq)) +
 chisq_test <- tab_join %>% chisq.test(correct = FALSE)
 chisq_test
 
+
+# Extra: create histogram
+
+cpc_cont <- data %>% select(cpc_score =`CPC (Contínuo)`)
+
+clean_cpc <- na.omit(cpc_cont$cpc_score)
+
+ggplot(data.frame(cpc_score = clean_cpc), aes(x = cpc_score)) +
+  geom_histogram(bins = 30, fill = "darkgreen", color = "black") +
+  theme_bw() +
+  labs(x = "CPC Score", y = "Count", title = "Distribution of Continuous CPC Scores")
+
+
