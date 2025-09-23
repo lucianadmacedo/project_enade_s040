@@ -5,10 +5,17 @@ library(dplyr)
 library(ggplot2)
 library(purrr)
 
-data <- read_excel("CPC_2023.xlsx", sheet = "CPC_2023")
+data_2023 <- read_excel("CPC_2023.xlsx", sheet = "CPC_2023")
+data_2022 <- read_excel("CPC_2022.xlsx", sheet = "CPC_2022")
+data_2021 <- read_excel("CPC_2021.xlsx", sheet = "CPC_2021")
+
+data_join <- bind_rows(data_2023, data_2022, data_2021)
+
 
 # Select only modality and CPC range columns
-cpc <- data %>% select(cpc_range =`CPC (Faixa)`, modality = `Modalidade de Ensino`)
+cpc_2023 <- data %>% select(cpc_range =`CPC (Faixa)`, modality = `Modalidade de Ensino`)
+cpc <- data_join %>% select(cpc_range =`CPC (Faixa)`, modality = `Modalidade de Ensino`)
+
 
 cpc <- cpc %>% filter(modality %in% c("Educação a Distância", "Educação Presencial")) %>%
   filter(cpc$cpc_range %in% c("1", "2", "3", "4", "5")) %>%
