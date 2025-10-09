@@ -110,11 +110,11 @@ final_data <- idesp_escola %>%
 
 final_data <- final_data %>% filter(!is.na(avg_years))
 
-
+# remove the column ANOS_INICIAIS
 final_data <- final_data %>% select(-ANOS_INICIAIS)
 
-final_data <- final_data %>% filter(!is.na(ANOS_FINAIS))
 
+final_data <- final_data %>% filter(!is.na(ANOS_FINAIS))
 
 
 stats_tests <- final_data %>% select(school_perform =`ANOS_FINAIS`, teacher_educ = `avg_years`)
