@@ -4,21 +4,18 @@ library(readr)
 library(dplyr)
 library(ggplot2)
 
-# Read in the datasets 
-# Use read.csv() to load your files. Make sure they are in your R working directory.
-# Adjust file paths if they are in a different folder.
+# Read in the datasets
 base_formacao <- read_csv2("SP_IDESP_yearsOfEducation/[BASE_FORMACAO_1124].csv")
 idesp_escola <- read_csv2("SP_IDESP_yearsOfEducation/IDESP_ESCOLA_2024.csv")
-
-# Record the initial number of rows
 # We store the original number of rows from the base_formacao dataset to calculate the number removed later.
 initial_rows <- nrow(base_formacao)
 dput(colnames(base_formacao))
 
+### JOIN DATASETS ###
+
 # Join the datasets 
 # We use inner_join() to merge the two data frames.
 # This function will only keep rows where the school code exists in both datasets.
-# We explicitly tell it which columns to join by, using the `by` argument.
 joined_data <- inner_join(
   base_formacao,
   idesp_escola,
@@ -36,6 +33,59 @@ print(paste("Total number of rows removed due to non-matching school codes:", ro
 
 # Check that the join was successful.
 head(joined_data)
+
+#### CORRECTION.OF YEARS OF EDUCATION DATA ####
+# --- 1. Define the Education Mapping ---
+# Create a named vector for easy lookup of education levels to their numeric values.
+education_map <- c(
+  "ENSINO MÉDIO" = 0,
+  "ENSINO MÉDIO-TÉCNICO" = 0,
+  "LICENCIATURA-CURTA" = 2,
+  "BACHARELADO/TECNÓLOGO" = 3.5,
+  "LICENCIATURA-PLENA" = 4,
+  "ESPECIALIZACAO POS MEDIO" = 1, # This one might be tricky if it's less common, keep an eye on it
+  "ESPECIALIZAÇÃO" = 1.5,
+  "APERF/EXTENSÃO CULTURAL" = 0.5,
+  "MESTRADO" = 2,
+  "DOUTORADO" = 4
+)
+
+# Create the New 'education_score' Column 
+# We'll add this to your 'joined_data' dataframe.
+# The process involves:
+#   a) Splitting the string by '+'
+#   b) Trimming whitespace from each part
+#   c) Looking up the numeric value for each part
+#   d) Summing these values
+
+joined_data <- joined_data %>%
+  mutate(
+    education_score = sapply(FORMACAO, function(formacao_string) {
+      if (is.na(formacao_string) || formacao_string == "S/INFO" || formacao_string == "") {
+        return(NA_real_) # Assign NA for missing or S/INFO values
+      } else {
+        # Split the string by "+" and remove leading/trailing whitespace from each part
+        parts <- strsplit(formacao_string, "\\+")[[1]] %>% trimws()
+        
+        # Look up the numeric value for each part from the education_map
+        # Handle cases where a part might not be in the map (assign 0 or NA, here we'll assign 0 for safety)
+        scores <- sapply(parts, function(p) {
+          val <- education_map[p]
+          if (is.na(val)) {
+            warning(paste("Unknown education type encountered:", p, "in FORMACAO:", formacao_string))
+            return(0) # Assign 0 or handle as NA if strict
+          } else {
+            return(val)
+          }
+        })
+        return(sum(scores, na.rm = TRUE)) # Sum all the scores for the current FORMACAO string
+      }
+    }, USE.NAMES = FALSE) # USE.NAMES = FALSE to return a simple vector
+  )
+
+# Verify the new column 
+head(joined_data %>% select(FORMACAO, education_score))
+
 
 #### UNIVARIATE ANALYSIS ####
 
