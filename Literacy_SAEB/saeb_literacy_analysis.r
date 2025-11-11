@@ -3,6 +3,7 @@ rm(list = ls())
 options(digits = 10)
 # --- 0. Load Libraries ---
 library(readr)
+library(texreg)
 library(dplyr)
 library(ggplot2)
 library(stringi)
@@ -13,7 +14,7 @@ library(stargazer) # For creating publication-quality regression tables
 
 # Read in the dataset
 saeb_2023 <- read_delim(
-  "Literacy_SAEB/TS_ALUNO_2EF.csv",
+  "~/Downloads/S-040/project_enade_s040/Literacy_SAEB/TS_ALUNO_2EF.csv",
   delim = ";",
   locale = locale(decimal_mark = "."),
   # This part is optional but good practice:
@@ -47,6 +48,14 @@ analysis_data <- saeb_2023 %>%
                            labels = c("Private", "Public"))
   ) %>%
   na.omit()
+
+
+region_counts <- analysis_data %>%
+  count(region_f) %>%
+  # Arrange in your preferred order (if needed)
+  arrange(factor(region_f, levels = c("North", "Northeast", "Southeast", "South", "Center-West")))
+
+print(region_counts)
 
 # Check the structure to confirm factors are set up correctly
 #print("--- Data Structure Check ---")
@@ -185,6 +194,7 @@ print(correlation_test)
 # The first level of each factor (e.g., "Urban", "North", "Private") 
 # will be the reference category by default.
 
+model_simple <- lm(PROFICIENCIA_MT_SAEB ~ PROFICIENCIA_LP_SAEB, data = analysis_data) 
 model <- lm(PROFICIENCIA_MT_SAEB ~ PROFICIENCIA_LP_SAEB + location_f + region_f + school_type_f, 
             data = analysis_data)
 
@@ -216,3 +226,6 @@ stargazer(model, type = "text",
           no.space = TRUE,
           header = FALSE,
           align = TRUE)
+
+
+screenreg(list(mod_simple, model))
