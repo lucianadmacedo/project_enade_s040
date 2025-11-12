@@ -135,6 +135,15 @@ ggplot(location_counts, aes(x = location_f, y = n, fill = location_f)) +
   theme_minimal() +
   theme(legend.position = "none")
 
+library(viridis)
+ggplot(location_counts, aes(x = location_f, y = n, fill = location_f)) +
+  geom_bar(stat = "identity", color = "black") +
+  geom_text(aes(label = paste0(Percentage, "%")), vjust = -0.5) +
+  labs(title = "Distribution of Students by Location", x = "Location", y = "Count") +
+  theme_minimal() +
+  scale_fill_viridis_d() +
+  theme(legend.position = "none")
+
 
 # B. Region (region_f)
 region_counts <- analysis_data %>%
@@ -165,6 +174,23 @@ ggplot(school_type_counts, aes(x = school_type_f, y = n, fill = school_type_f)) 
   geom_text(aes(label = paste0(Percentage, "%")), vjust = -0.5) +
   labs(title = "Distribution of Students by School Type", x = "School Type", y = "Count") +
   theme_minimal() +
+  theme(legend.position = "none")
+
+
+ggplot(school_type_counts, aes(x = school_type_f, y = n, fill = school_type_f)) +
+  geom_bar(stat = "identity", color = "black") +
+  geom_text(aes(label = paste0(Percentage, "%")), vjust = -0.5) +
+  labs(title = "Distribution of Students by School Type", x = "School Type", y = "Count") +
+  theme_minimal() +
+  scale_fill_viridis_d() + 
+  theme(legend.position = "none")
+
+ggplot(school_type_counts, aes(x = school_type_f, y = n, fill = school_type_f)) +
+  geom_bar(stat = "identity", color = "black") +
+  geom_text(aes(label = paste0(Percentage, "%")), vjust = -0.5) +
+  labs(title = "Distribution of Students by School Type", x = "School Type", y = "Count") +
+  theme_minimal() +
+  scale_fill_manual(values = c("Public" = "#0081C7", "Private" = "#FFB547")) +
   theme(legend.position = "none")
 
 
@@ -228,4 +254,4 @@ stargazer(model, type = "text",
           align = TRUE)
 
 
-screenreg(list(mod_simple, model))
+screenreg(list(model_simple, model))
