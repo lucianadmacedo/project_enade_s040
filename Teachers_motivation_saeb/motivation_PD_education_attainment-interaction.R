@@ -13,7 +13,7 @@ library(psych)
 # ============================================================================
 
 
-df <- read.csv2("/Users/lucianadiasdemacedo/Downloads/MICRODADOS_SAEB_2023/DADOS/TS_PROFESSOR.csv",
+df <- read.csv2("Teachers_motivation_saeb/TS_PROFESSOR.csv",
                 sep = ";",
                 fileEncoding = "latin1",
                 stringsAsFactors = FALSE)
